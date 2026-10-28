@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShieldBank - Secure Digital Banking & Fraud Detection System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Persistent Top Header -->
+  <header class="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+        🛡️
+      </div>
+      <div>
+        <span class="text-xl font-extrabold tracking-tight text-slate-900">ShieldBank</span>
+        <span class="hidden sm:inline-block ml-2 text-xs bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-semibold">
+          AI Fraud Detection & Digital Banking
+        </span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Role Switcher (User vs Admin Monitor) -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button onclick="switchRole('user')" id="role-btn-user" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-emerald-700 text-white shadow-sm">
+          🏦 User Banking
+        </button>
+        <button onclick="switchRole('admin')" id="role-btn-admin" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900">
+          🛡️ Admin Monitor
+        </button>
+      </div>
+
+      <!-- Fraud Alerts Bell -->
+      <button onclick="switchTab('Fraud Alerts')" title="Security & Fraud Alerts" class="relative p-2.5 rounded-full hover:bg-slate-100 border border-slate-200 transition">
+        🔔
+        <span id="alert-badge" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
+          2
+        </span>
+      </button>
+
+      <!-- Clickable Profile Avatar -->
+      <button onclick="switchTab('Account Profile')" title="Open Account Profile" class="flex items-center gap-3 p-1.5 pr-3.5 rounded-full hover:bg-slate-100 transition border border-slate-200 cursor-pointer">
+        <div id="header-initials" class="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-sm">
+          JD
+        </div>
+        <div class="text-left hidden sm:block">
+          <p id="header-name" class="text-xs font-bold text-slate-800 leading-tight">Jayesh Deshmukh</p>
+          <p id="header-role-sub" class="text-[11px] text-emerald-700 font-semibold">A/C: ••••4829 (KYC Verified)</p>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- Toast Banner -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium border border-slate-700"></div>
+
+  <!-- Main Body Layout -->
+  <div class="flex flex-1">
+    <!-- Left Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 p-4 hidden md:flex flex-col justify-between">
+      <nav class="space-y-1.5">
+        <button onclick="switchTab('Account Overview')" id="nav-Account Overview" class="w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition bg-emerald-700 text-white shadow-sm">
+          📊 Account Overview
+        </button>
+        <button onclick="switchTab('Fund Transfer')" id="nav-Fund Transfer" class="w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
+          💸 Fund Transfer (OTP)
+        </button>
+        <button onclick="switchTab('Transaction History')" id="nav-Transaction History" class="w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
+          📜 Transaction History
+        </button>
+        <button onclick="switchTab('Fraud Alerts')" id="nav-Fraud Alerts" class="w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
+          🚨 Fraud Alerts
+        </button>
+        <button onclick="switchTab('Admin Dashboard')" id="nav-Admin Dashboard" class="w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
+          🛡️ Admin Monitoring
+        </button>
+        <button onclick="switchTab('Account Profile')" id="nav-Account Profile" class="w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
+          👤 Account Profile
+        </button>
+      </nav>
+
+      <!-- Fraud Attack Simulator Box for College Demo -->
+      <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 space-y-2">
+        <p class="font-bold">⚡ Live Fraud Simulator</p>
+        <p class="text-rose-700">Test real-time AI anomaly detection by triggering a suspicious foreign IP transfer.</p>
+        <button onclick="simulateFraudAttack()" class="w-full py-2 bg-rose-600 text-white rounded-lg font-bold hover:bg-rose-700 transition">
+          🚨 Simulate Fraud Attack
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-20 flex overflow-x-auto p-2 gap-1">
+      <button onclick="switchTab('Account Overview')" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 whitespace-nowrap">Overview</button>
+      <button onclick="switchTab('Fund Transfer')" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 whitespace-nowrap">Transfer</button>
+      <button onclick="switchTab('Transaction History')" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 whitespace-nowrap">History</button>
+      <button onclick="switchTab('Fraud Alerts')" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 whitespace-nowrap">Alerts</button>
+      <button onclick="switchTab('Admin Dashboard')" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 whitespace-nowrap">Admin</button>
+      <button onclick="switchTab('Account Profile')" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 whitespace-nowrap">Profile</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 md:p-8 pb-20 md:pb-8 max-w-6xl mx-auto w-full">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-4">
+        <div>
+          <h1 id="page-title" class="text-2xl font-bold text-slate-900">Account Overview</h1>
+          <p class="text-sm text-slate-500">Real-time transaction tracking, OTP 2FA security, and AI-driven fraud anomaly detection.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="simulateFraudAttack()" class="px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition">
+            🚨 Test Fraud Alert
+          </button>
+          <button onclick="switchTab('Fund Transfer')" class="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 transition">
+            💸 + New Fund Transfer
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: ACCOUNT OVERVIEW -->
+      <div id="tab-Account Overview" class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase">Available Balance</p>
+            <p id="stat-balance" class="text-3xl font-extrabold text-emerald-700 mt-1">₹2,45,000</p>
+            <p class="text-xs text-slate-500 mt-1">Savings A/C ••••4829</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase">AI Fraud Shield</p>
+            <p id="stat-card-status" class="text-xl font-extrabold text-emerald-600 mt-1">Active & Protected</p>
+            <p class="text-xs text-slate-500 mt-1">256-Bit SSL + OTP 2FA</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase">Flagged Transactions</p>
+            <p id="stat-flagged" class="text-3xl font-extrabold text-rose-600 mt-1">1</p>
+            <p class="text-xs text-rose-600 font-medium mt-1">Held for Admin review</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase">Total Transfers</p>
+            <p id="stat-tx-count" class="text-3xl font-extrabold text-slate-900 mt-1">4</p>
+            <p class="text-xs text-slate-500 mt-1">Monitored in real-time</p>
+          </div>
+        </div>
+
+        <!-- Account Summary & Recent Monitored Transactions -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-emerald-800 text-white p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs uppercase font-bold tracking-wider text-emerald-200">ShieldBank Platinum</span>
+                <span id="card-badge" class="text-[11px] bg-emerald-600 px-2.5 py-0.5 rounded-full font-bold">Card Active</span>
+              </div>
+              <p id="overview-balance" class="text-4xl font-extrabold mt-4">₹2,45,000</p>
+              <p class="text-xs text-emerald-200 mt-2 font-mono tracking-widest">4532 •••• •••• 4829</p>
+              <p id="overview-holder" class="text-sm font-bold mt-4">JAYESH DESHMUKH</p>
+              <p class="text-xs text-emerald-200">IFSC: SHBK0001042 • Nagpur Main Branch</p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-emerald-700 flex gap-2">
+              <button onclick="toggleCardFreeze()" id="freeze-btn" class="flex-1 py-2 bg-white/15 hover:bg-white/25 rounded-xl text-xs font-bold transition">
+                ❄️ Freeze Debit Card
+              </button>
+              <button onclick="switchTab('Fund Transfer')" class="flex-1 py-2 bg-white text-emerald-900 rounded-xl text-xs font-bold hover:bg-emerald-50 transition">
+                Send Money →
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold text-slate-900">Recent AI-Monitored Transactions</h2>
+              <button onclick="switchTab('Transaction History')" class="text-xs font-bold text-emerald-700 hover:underline">View All</button>
+            </div>
+            <div id="overview-tx-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: FUND TRANSFER (WITH LIVE AI FRAUD RISK METER & OTP) -->
+      <div id="tab-Fund Transfer" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900">Initiate Secure Fund Transfer</h2>
+                <p class="text-xs text-slate-500">Every transfer is scanned by the AI Fraud Engine and verified via 6-digit OTP.</p>
+              </div>
+              <div class="flex gap-1.5">
+                <button type="button" onclick="fillTransferDemo('safe')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                  Fill Normal (₹12k)
+                </button>
+                <button type="button" onclick="fillTransferDemo('risky')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+                  Fill High-Risk (₹88k)
+                </button>
+              </div>
+            </div>
+
+            <form onsubmit="initiateOtpStep(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Beneficiary Name</label>
+                  <input type="text" id="tf-name" required placeholder="e.g., Rohit Sharma" oninput="calculateLiveRisk()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Beneficiary Account No</label>
+                  <input type="text" id="tf-acc" required minlength="8" placeholder="e.g., 501004829102" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-mono" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 uppercase mb-1">IFSC Code</label>
+                  <input type="text" id="tf-ifsc" required value="HDFC0001209" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm uppercase" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Amount (₹)</label>
+                  <input type="number" id="tf-amount" min="100" required placeholder="Enter amount" oninput="calculateLiveRisk()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-bold" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Transfer Mode</label>
+                  <select id="tf-mode" onchange="calculateLiveRisk()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-semibold">
+                    <option value="IMPS Instant">IMPS Instant</option>
+                    <option value="NEFT Settlement">NEFT Settlement</option>
+                    <option value="RTGS High-Value">RTGS High-Value</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Simulated Device / Location Context (For Fraud Testing)</label>
+                <select id="tf-context" onchange="calculateLiveRisk()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+                  <option value="trusted">📍 Nagpur, IN • Trusted Device (Normal Behavior)</option>
+                  <option value="unusual_hour">🌙 Late Night Login • Unrecognized Browser (Moderate Risk)</option>
+                  <option value="foreign_vpn">🚨 Foreign VPN IP (185.220.101.4) • New Payee (High Fraud Risk)</option>
+                </select>
+              </div>
+
+              <button type="submit" class="w-full py-3 bg-emerald-700 text-white rounded-xl font-bold text-sm hover:bg-emerald-800 transition">
+                🔐 Proceed to OTP Authentication
+              </button>
+            </form>
+          </div>
+
+          <!-- Real-Time AI Fraud Risk Meter -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">AI Fraud Risk Analyzer</h3>
+              <p class="text-xs text-slate-500 mt-1">Real-time heuristic scoring before transaction execution:</p>
+
+              <div class="mt-6 text-center p-5 rounded-2xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-bold uppercase text-slate-400">Calculated Fraud Probability</p>
+                <p id="risk-score-text" class="text-4xl font-extrabold text-emerald-600 mt-1">12%</p>
+                <span id="risk-badge" class="inline-block mt-2 text-xs font-bold px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  Low Risk • Safe
+                </span>
+                <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden mt-4">
+                  <div id="risk-bar" class="h-full bg-emerald-600 transition-all" style="width: 12%"></div>
+                </div>
+              </div>
+
+              <ul class="mt-5 space-y-2.5 text-xs text-slate-600">
+                <li class="flex justify-between"><span>✓ Transaction Amount Check:</span><strong id="check-amt" class="text-emerald-700">Normal</strong></li>
+                <li class="flex justify-between"><span>✓ IP & Geo-Location Match:</span><strong id="check-geo" class="text-emerald-700">Verified</strong></li>
+                <li class="flex justify-between"><span>✓ Mandatory 2FA Security:</span><strong class="text-emerald-700">6-Digit OTP</strong></li>
+              </ul>
+            </div>
+
+            <div class="mt-6 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900">
+              <strong>Policy:</strong> Transfers scoring ≥ 70% fraud risk are automatically placed on <strong>Flagged Hold</strong> for Admin verification.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: TRANSACTION HISTORY -->
+      <div id="tab-Transaction History" class="hidden">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Complete Transaction & Fraud Score Ledger</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-xs uppercase text-slate-400">
+                  <th class="py-3 px-4">TXN ID & Time</th>
+                  <th class="py-3 px-4">Beneficiary & A/C</th>
+                  <th class="py-3 px-4">Amount & Mode</th>
+                  <th class="py-3 px-4">Location / IP</th>
+                  <th class="py-3 px-4">AI Fraud Risk</th>
+                  <th class="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tx-history-tbody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: FRAUD ALERTS -->
+      <div id="tab-Fraud Alerts" class="hidden space-y-4">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Real-Time Security & Fraud Detection Alerts</h2>
+              <p class="text-xs text-slate-500">Instant SMS/Email anomaly notifications generated by ShieldBank AI.</p>
+            </div>
+            <button onclick="markAlertsRead()" class="text-xs font-bold text-emerald-700 hover:underline">Mark All as Read</button>
+          </div>
+          <div id="fraud-alerts-list" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: ADMIN MONITORING DASHBOARD -->
+      <div id="tab-Admin Dashboard" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">🛡️ Admin Fraud Monitoring & Decision Console</h2>
+              <p class="text-xs text-slate-500">Review high-risk flagged transactions, inspect IP anomalies, and Approve or Block transfers.</p>
+            </div>
+            <span class="text-xs bg-rose-100 text-rose-800 px-3 py-1 rounded-full font-bold self-start sm:self-auto">
+              SOC Level-2 Admin Access
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-xs uppercase text-slate-400">
+                  <th class="py-3 px-4">TXN ID</th>
+                  <th class="py-3 px-4">Beneficiary</th>
+                  <th class="py-3 px-4">Amount</th>
+                  <th class="py-3 px-4">IP / Device Trace</th>
+                  <th class="py-3 px-4">Fraud Score</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4">Admin Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-monitor-tbody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: ACCOUNT PROFILE -->
+      <div id="tab-Account Profile" class="hidden">
+        <div class="max-w-xl bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div id="profile-avatar" class="w-14 h-14 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xl">
+                JD
+              </div>
+              <div>
+                <h2 id="profile-display-name" class="text-xl font-bold text-slate-900">Jayesh Deshmukh</h2>
+                <p id="profile-display-email" class="text-xs text-slate-500">jayesh@college.edu</p>
+              </div>
+            </div>
+            <button onclick="toggleProfileEdit(
